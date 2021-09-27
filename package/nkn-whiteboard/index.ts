@@ -52,52 +52,27 @@ class NKNWhiteBoard implements IBoardEngine, BoardDOMEventImplementer {
         console.log("[setDrawMode called]")
         this._cntx.mode = mode
         if (this._redoList.length > 0) this._redoList = []
-        if (this._cntx.channel_mode === ChannelMode.PUBLISHER) {
-            let ch = this._cntx.channel as INKNChannel
-            let board_ev = new BoardControlEvent()
-            board_ev.eventName = "modeChange"
-            board_ev.data = mode
-            let transferData = {
-                name: BoardControlEvent.OBJECT_NAME,
-                value: board_ev
-            }
-            ch.publishDataChannel(transferData, this._cntx)
-        }
+        
         switch (this._cntx.mode) {
             case DrawingModes.FREE_HAND:
                 this._cntx.currentCommand = new FreeHandDrawCommand()
-                this._prevCommandList.push({
-                    type: FreeHandDrawCommand.OBJECT_NAME,
-                    data: this._cntx.currentCommand
-                })
+               
                 break;
             case DrawingModes.TEXT:
                 this._cntx.currentCommand = new TextCommand()
-                this._prevCommandList.push({
-                    type: TextCommand.OBJECT_NAME,
-                    data: this._cntx.currentCommand
-                })
+                
                 break
             case DrawingModes.RECT_SHAPE:
                 this._cntx.currentCommand = new RectShapeCommand()
-                this._prevCommandList.push({
-                    type: RectShapeCommand.OBJECT_NAME,
-                    data: this._cntx.currentCommand
-                })
+                
                 break;
             case DrawingModes.CIRCLE_SHAPE:
                 this._cntx.currentCommand = new CirclShapeCommand()
-                this._prevCommandList.push({
-                    type: CirclShapeCommand.OBJECT_NAME,
-                    data: this._cntx.currentCommand
-                })
+               
                 break;
             case DrawingModes.ERASER:
                 this._cntx.currentCommand = new EraseCommand()
-                this._prevCommandList.push({
-                    type: EraseCommand.OBJECT_NAME,
-                    data: this._cntx.currentCommand
-                })
+               
                 break;
 
         }
