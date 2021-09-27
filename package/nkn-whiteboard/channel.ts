@@ -44,7 +44,7 @@ export class Channel implements IChannel, INKNChannel {
         this.dataNknClient = new nkn.Client({ identifier: this.dataNKNClientIDentifier })
         this.dataNknClient.onConnect(() => {
             this.onConnectCb()
-            this.callevent("connect")
+            this.callevent("connected")
         })
         this.audioNknClient = new nkn.Client({ identifier: this.audioNKNClientIdentifier })
     }
@@ -129,20 +129,15 @@ export class Channel implements IChannel, INKNChannel {
     }
     muteMic(): void {
         this.audioMute = true
-        this.audioNknClient?.unsubscribe(this.channelName, this.audioNKNClientIdentifier, {})
-        this.audioSubscribed = false
     }
     muteSpeaker(): void {
-        this.audioNknClient?.unsubscribe(this.channelName, this.audioNKNClientIdentifier, {})
-        this.audioSubscribed = false
+        this.audioNknClient?.unsubscribe(this.channelName+"_audio", this.audioNKNClientIdentifier, {})
     }
 
     unMuteSpeaker(ctx : DrawingContext) {
-        if(!this.audioSubscribed){       
-            this.audioNknClient?.subscribe(this.channelName, Math.ceil(ctx.remainingSeconds / 20), this.audioNKNClientIdentifier, "metadata", {})
-        }
-
+        this.audioNknClient?.subscribe(this.channelName+"_audio", Math.ceil(ctx.remainingSeconds / 20), this.audioNKNClientIdentifier, "metadata", {})
         this.audioNknClient?.onMessage((data : Uint8Array) => {
+            console.log("Recieved Audio Data")
             let context = new AudioContext()
             let source = context.createBufferSource()
             let audioData = data
@@ -169,18 +164,16 @@ export class Channel implements IChannel, INKNChannel {
             source.connect(processor);
             processor.connect(context.destination);
 
-            if(processor.onaudioprocess){
-                processor.onaudioprocess = (e) => {
+            processor.onaudioprocess = (e) => {
                     
-                    if(this.audioMute) return
-                    // Do something with the data, e.g. convert it to WAV
-                    let audioBif = e.inputBuffer
-                    let floatArray = audioBif.getChannelData(0)
-                    let audioData = new Uint8Array(floatArray.buffer)
-                    console.log("Sending Audio Data")
-                    this.audioNknClient?.publish(this.channelName, audioData)
-                };
-            }
+                if(this.audioMute) return
+                // Do something with the data, e.g. convert it to WAV
+                let audioBif = e.inputBuffer
+                let floatArray = audioBif.getChannelData(0)
+                let audioData = new Uint8Array(floatArray.buffer)
+                console.log("Sending Audio Data")
+                this.audioNknClient?.publish(this.channelName+"_audio", audioData)
+            };
 
         })
     }

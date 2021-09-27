@@ -7,6 +7,18 @@ Enkaye is a rudimentary collaborative whiteboard platform. Infact it is a Librar
 
 its not yet, finished to be a candiddate for npm package
 
+## How to install
+
+```
+git clone <repo>
+
+cd <repo>
+
+npm install
+
+npm run dev
+```
+
 ## Features
 
 It can draw shapes like Rect, FreeHand, Circle and Text.
@@ -23,6 +35,14 @@ I used double clients, one for whiteboard drawing data and the other for audio d
 
 2. Canvas Data is very very small, to make JSON parsing trivial
 
+## Communication Protocol
+At the dataChannel, every data is a string json. with two properties.
+
+`name` and  `value`
+
+name is the name of the object(every Object to be published must have a `OBJECT_NAME` static property)
+
+value is the object itself.
 
 ## Library RoadMap
 
@@ -40,6 +60,7 @@ I used double clients, one for whiteboard drawing data and the other for audio d
 
 - Time is small, but yes its enough for a hackathon
 - My System is really bad(Audio) and slow.
+- Firefox does not run the app properly, Use Chrome
 
 ## Class Design
 Channel.ts - Contains all logic interacting with NKNClient

@@ -1,6 +1,34 @@
 <template>
   <main class="min-h-screen relative flex justify-center bg-gray-100">
     <div class="absolute top-0">
+      <div
+        v-show="!connected"
+        class="
+          w-full
+          flex
+          justify-center
+          p-3
+          font-bold
+          text-yellow-500
+          bg-yellow-50
+        "
+      >
+        Connecting
+      </div>
+      <div
+        v-show="connected && showSuccess"
+        class="
+          w-full
+          flex
+          justify-center
+          p-3
+          font-bold
+          text-green-500
+          bg-green-50
+        "
+      >
+        Connecting
+      </div>
       <tools
         @redo="redo"
         @toolSelected="toolSelected"
@@ -14,7 +42,7 @@
         <button
           @click="copyChannelLink"
           class="
-          mt-8
+            mt-8
             px-4
             p-1
             border-2
@@ -38,7 +66,7 @@ import {
   createBoard,
   DrawingModes,
   IBoardEngine,
-IChannel,
+  IChannel,
 } from "../package/nkn-whiteboard";
 import Tools from "../components/Tools.vue";
 export default {
@@ -49,7 +77,9 @@ export default {
   data() {
     return {
       boardEngine: createBoard(),
-      channel : null
+      channel: null,
+      connected: false,
+      showSuccess: true,
     };
   },
 
@@ -104,33 +134,45 @@ export default {
     },
 
     micToggled(state: boolean) {
-        if(state){
-            this.boardEngine.unMuteMic()
-        } else {
-            this.boardEngine.muteMic()
-        }
+      if (state) {
+        this.boardEngine.unMuteMic();
+      } else {
+        this.boardEngine.muteMic();
+      }
     },
 
-    speakerToggled(state : boolean) {
-        if(state){
-            this.boardEngine.unMuteSpeaker()
-        } else {
-            this.boardEngine.muteSpeaker()
-        }
-    }
+    speakerToggled(state: boolean) {
+      if (state) {
+        this.boardEngine.unMuteSpeaker();
+      } else {
+        this.boardEngine.muteSpeaker();
+      }
+    },
   },
   mounted() {
     this.boardEngine.initCanvas("whiteboard", true);
-    let url = window.location.href
-    let urlObj = new URL(url)
-    let mode = urlObj.searchParams.get("mode")
-    if(mode && mode === "join"){
-        let chName= urlObj.searchParams.get("channel")
-        if(chName){
-            this.channel = this.boardEngine.joinChannel(chName)
-        }
+    let url = window.location.href;
+    let urlObj = new URL(url);
+    let mode = urlObj.searchParams.get("mode");
+    if (mode && mode === "join") {
+      let chName = urlObj.searchParams.get("channel");
+      if (chName) {
+        this.channel = this.boardEngine.joinChannel(chName);
+        this.channel.listenTo("connected", () => {
+          this.connected = true;
+          setTimeout(() => {
+            this.showSuccess = false;
+          }, 2000);
+        });
+      }
     } else {
-        this.channel = this.boardEngine.startChannel()
+      this.channel = this.boardEngine.startChannel() as IChannel;
+      this.channel.listenTo("connected", () => {
+        this.connected = true;
+        setTimeout(() => {
+          this.showSuccess = false;
+        }, 2000);
+      });
     }
   },
 };
