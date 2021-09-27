@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.textedit {
+    @apply border-2 border-blue-400 min-w-[50px] p-1 rounded outline-none bg-gray-100
+}
+
+.rect {
+    @apply border-2 border-black
+}
+
+.circle {
+    @apply border-2 border-black rounded-full
+}

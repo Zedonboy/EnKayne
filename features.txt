@@ -1,0 +1,7 @@
+audio
+undo and redo
+update for late comers
+
+known bugs
+
+redo/undo system does not retain stroke and fill parameters
